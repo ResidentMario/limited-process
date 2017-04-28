@@ -1,4 +1,4 @@
-name: limited-requests
+name: limited-process
 dependencies:
   - requests
   - pytest
