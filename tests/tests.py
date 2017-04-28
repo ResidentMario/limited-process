@@ -1,25 +1,32 @@
 import unittest
+
 import sys; sys.path.insert(0, "../")
 import limited_requests
 
 
 class TestLimitedRequests(unittest.TestCase):
+    """
+    Unfortunately multiprocessing and requests_mock don't seem to get along, as when a mock is substituted for this
+    network request the process hangs. Until/unless I figure out why, this test suite is therefore network dependent.
+    """
+    def setUp(self):
+        self.q = limited_requests.q()
+        self.test_uri = "https://data.cityofnewyork.us/api/views/kku6-nxdu/rows.csv?accessType=DOWNLOAD"
+        self.test_timeout_uri = "https://data.cityofnewyork.us/api/geospatial/pi5s-9p35?method=export&format=Shapefile"
 
-    def test_simple_success(self):
-        q = limited_requests.q()
-        ret = limited_requests.limited_get(
-            "https://data.cityofnewyork.us/api/views/kku6-nxdu/rows.csv?accessType=DOWNLOAD", q,
+    def test_success(self):
+        # See the note above.
+        #     with requests_mock.Mocker() as mock:
+        #         # Interdict network requests to retrieve data from the localized store instead.
+        #         mock.get(self.mock_uri, text='HELLO WORLD')
+        result = limited_requests.limited_get(
+            self.test_uri,
+            self.q,
             timeout=10
         )
-        assert ret
+        result[0].pop('data')
+        expected = [{'filepath': '.', 'mimetype': 'text/csv', 'extension': 'csv'}]
+        assert result == expected
 
-    def test_simple_failure(self):
-        q = limited_requests.q()
-        ret = limited_requests.limited_get(
-            "https://data.cityofnewyork.us/api/geospatial/pi5s-9p35?method=export&format=Shapefile", q,
-            timeout=0.1
-        )
-        assert (not ret)
-
-if __name__ == '__main__':
-    unittest.main()
+    def test_timeout(self):
+        assert not limited_requests.limited_get(self.test_timeout_uri, self.q, timeout=0.1)
