@@ -1,0 +1,6 @@
+name: limited-requests
+dependencies:
+  - requests
+  - pytest
+  - pip:
+    - datafy

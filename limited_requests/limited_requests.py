@@ -57,7 +57,6 @@ def q():
 def limited_get(uri, q, reducer=_size_up, timeout=60, sizeout=None):
     """
     Implemented a timed request. Note: this function blocks.
-
     Parameters
     ----------
     uri: str
@@ -76,7 +75,6 @@ def limited_get(uri, q, reducer=_size_up, timeout=60, sizeout=None):
         be specified).
     sizeout: int, default None
         The maximum size. Note that this parameter will only work for resources which define a `content-length` header.
-
     Returns
     -------
     Whatever you get by reducing the URI, assuming the job completes. None, if the job doesn't complete.
